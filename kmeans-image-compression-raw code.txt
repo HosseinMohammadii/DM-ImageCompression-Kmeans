@@ -1,0 +1,162 @@
+# %matplotlib inline
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib import image
+import random
+
+
+def create_centers(data, cluster_size, dimension_size):
+    centers = np.zeros((cluster_size, dimension_size))
+    for i in range(0, cluster_size):
+        r = random.randint(0, len(data)-1)
+        center = []
+        for d in range(0, dimension_size):
+            center.append(data[r][d])
+        centers[i] = center[:]
+
+    centers = np.array(centers)
+    return centers
+
+
+def create_membership(cluster_size, data_size):
+    n = data_size
+    U = np.random.random((cluster_size, n))
+    for k in range(0, n):
+        s = sum(U[:, k])
+        for i in range(0, cluster_size):
+            U[i][k] = U[i][k] / s
+    return U
+
+
+def cal_membership(data_, centers_, cluster__size, data__size, mp):
+    c = cluster__size
+    n = data__size
+    D = np.zeros((c, n))
+    for k in range(0, n):
+        for i in range(0, c):
+            D[i][k] = np.linalg.norm(data_[k] - centers_[i])
+
+    distances = D[:]
+
+    "update memberships"
+    u = np.zeros((cluster__size, data__size))
+    n = len(distances[0])
+    c = len(distances)
+    Up = np.zeros((c, n))
+    h = 2 / (mp - 1)
+    for k in range(0, n):
+        for i in range(0, c):
+            if distances[i][k] == 0:
+                u[i][k] = 0
+            else:
+                s = sum((distances[i][k] / distances[j][k]) ** h for j in range(0, c) if distances[j][k] != 0)
+                u[i][k] = 1 / s
+    membership = u[:]
+    return membership
+
+
+def kmean(data, data_size, cluster_size, iteration_size, dimension_size, mp):
+    membershipo = create_membership(cluster_size, data_size)
+    centers = create_centers(data, cluster_size, dimension_size)
+    curr = 0
+
+    while curr < iteration_size:
+        curr = curr + 1
+
+        "update distances"
+        c = len(centers)
+        n = len(data)
+        D = np.zeros((c, n))
+        for k in range(0, n):
+            for i in range(0, c):
+                D[i][k] = np.linalg.norm(data[k] - centers[i])
+        distances = D[:]
+
+        "update memberships"
+        U = membershipo[:]
+        n = len(distances[0])
+        c = len(distances)
+        for k in range(0, n):
+            near_c = -1
+            min_dis = 500
+            for i in range(0, c):
+                if distances[i][k] < min_dis:
+                    min_dis = distances[i][k]
+                    near_c = i
+
+                U[i][k] = 0
+            U[near_c][k] = 1
+
+        membership = U[:]
+
+        "update centers"
+        c = len(membership)
+        n = len(data)
+        m = len(data[0])
+        V = np.zeros((c, m))
+
+        for i in range(0, c):
+            A = sum((membership[i][k]) * data[k] for k in range(0, n))
+            b = sum(membership[i][k] for k in range(0, n))
+            v = A / b
+            V[i] = v
+
+        centers = V[:]
+
+    print('k-mean finished')
+
+    return centers, membership
+
+
+path1 = "image.png"
+path2 = "imageSmall.png"
+
+bigImage = image.imread(path1)
+plt.title("Original big Image")
+plt.imshow(bigImage)
+plt.show()
+
+smallImage = image.imread(path2)
+plt.title("Original small Image")
+plt.imshow(smallImage)
+plt.show()
+
+
+def compress(input_image, output_color_number, iteration_size):
+    height, width, rgb = input_image.shape
+    reshape_image = input_image.reshape((height*width, rgb))
+    # print(reshape_image.shape)
+    # print(reshape_image[1])
+    # print(len(reshape_image[1]))
+    # print(type(reshape_image[1]))
+
+    dimension_size = 3
+    m = 1
+    centers, membership = kmean(reshape_image, len(reshape_image), output_color_number, iteration_size,
+                                dimension_size, m)
+
+    membership = membership.T
+
+    # print(len(membership))
+    # print(membership[0])
+    #
+    # print(len(centers))
+    # print(centers[0])
+
+    middle_image = np.zeros((height*width, rgb))
+    for i in range(height*width):
+        arg_max = np.argmax(membership[i])
+        middle_image[i] = centers[arg_max]
+
+    output_image = middle_image.reshape((height, width, rgb))
+
+    plt.imshow(output_image)
+    plt.show()
+
+    output_image_name = str(height) + "x" + str(width) + "-" + str(output_color_number) + " color" + ".png"
+    image.imsave(output_image_name, output_image)
+
+
+compress(smallImage, 16, 6)
+
+
