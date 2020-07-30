@@ -12,7 +12,7 @@ number	of	the	colors	result	in	lower	quality	for	the	image,	we	use	K-means	to	fi
 256)	colors	that	best	group	pixels	in	the	image.
 
 
-![Sample result](https://octodex.github.com/images/yaktocat.png)
+![Sample result](https://github.com/HosseinMohammadii/DM-ImageCompression-Kmeans/blob/master/sample-result.png)
 
 
 The	original	image	has	800x800	pixels	and	with	24	bits	per	pixel	the	image	requires	at	least	
@@ -22,7 +22,7 @@ By	this	point	hopefully	you	have	learnt	the	intuition	behind	the	clustering	and	
 on	knowledge	on	how	to	use	clustering	for	real	world	challenges.		
 
 # To see code result please open jupyter file
-![jupyter file](https://octodex.github.com/images/yaktocat.png)
+![jupyter file](https://github.com/HosseinMohammadii/DM-ImageCompression-Kmeans/blob/master/kmeans-image-compression.ipynb)
 
 # For more explanations please read report file image compression section
-![Report](https://octodex.github.com/images/yaktocat.png)
+![Report](https://github.com/HosseinMohammadii/DM-ImageCompression-Kmeans/blob/master/HosseinMohammadi_Report.pdf)
